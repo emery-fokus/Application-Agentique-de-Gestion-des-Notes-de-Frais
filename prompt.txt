@@ -1,0 +1,14 @@
+Analyse cette image de note de frais et extrait les informations demandées. 
+
+Tu dois retourner UNIQUEMENT un JSON valide, sans aucun texte d'introduction ou d'explication. Respecte scrupuleusement la structure et les formats décrits ci-dessous :
+
+{
+  "date": "Date de la dépense au format ISO 'AAAA-MM-JJ'. Si l'année n'est pas spécifiée sur le ticket, utilise l'année en cours. Si absente ou illisible : null",
+  "type": "Chaîne de caractères. Catégorie de la dépense parmi les valeurs suivantes uniquement : 'Restaurant', 'Transport' (train, avion, taxi, essence, péage), 'Hébergement' (hôtel, Airbnb), 'Fournitures' (matériel, bureau), ou 'Autre'",
+  "description": "Chaîne de caractères. Brève description textuelle ou nature de la dépense (ex: 'Repas d'affaires avec client', 'Achat de cartouches d'encre'). Si absente : null",
+  "fournisseur": "Chaîne de caractères. Nom de l'enseigne, du commerce ou de l'entreprise émettrice du ticket. Si absent ou illisible : null",
+  "montant_ttc": "Nombre décimal (Float). Montant total toutes taxes comprises, en utilisant le point comme séparateur décimal (ex: 42.50). N'inclus pas le symbole de la devise. Si absent : null",
+  "tva": "Nombre décimal (Float). Montant total de la TVA extraite. Si plusieurs taux s'appliquent, fais la somme des montants de TVA. Utilise le point comme séparateur décimal. Si aucune TVA n'est mentionnée : 0.0. Si illisible : null",
+  "devise": "Chaîne de caractères. Code ISO 4217 de la devise sur 3 lettres majuscules (ex: 'EUR', 'USD', 'GBP'). Si absente : null",
+  "confidence": "Chaîne de caractères. Ton niveau de certitude globale sur l'extraction de ce document. Valeurs possibles : 'haute', 'moyen', 'basse'"
+}

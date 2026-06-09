@@ -1,0 +1,6 @@
+python-dotenv
+groq
+pybase64
+fastapi
+uvicorn[standard]
+python-multipart
