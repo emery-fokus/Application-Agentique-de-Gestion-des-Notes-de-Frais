@@ -1,7 +1,6 @@
 import os
 import json
 import base64
-
 from dotenv import load_dotenv
 from groq import Groq
 
@@ -57,10 +56,9 @@ class ExpenseAgent:
             ]
         )
         
-        # Étape 4 : On récupère la réponse textuelle de l'IA
+        
         raw_json_text = response.choices[0].message.content
         
-        # Étape 5 : On transforme ce texte en dictionnaire Python (Parsing)
         try:
             extracted_data = json.loads(raw_json_text)
         except json.JSONDecodeError:
@@ -79,7 +77,6 @@ if __name__ == "__main__":
 
     agent = ExpenseAgent()
 
-    # Assure-toi d'avoir une image nommée "test_ticket.jpg" dans ton dossier !
     image_path = "test_ticket.jpg"
 
     if not os.path.exists(image_path):
