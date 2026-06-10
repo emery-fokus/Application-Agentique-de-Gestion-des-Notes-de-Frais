@@ -166,7 +166,7 @@ async def submit_expense(
     devise: str = Form("EUR"),
     expense_type: str = Form(None, alias="type"),
     description: str = Form(""),
-    image_data: str = Form(...),
+    image_data: str = Form(None),
 ):
     def to_float(s: str | None):
         if s is None or s == "":
@@ -179,13 +179,22 @@ async def submit_expense(
     montant_ttc = to_float(montant_ttc_raw)
     tva = to_float(tva_raw)
 
-    image_bytes = parse_data_url(image_data)
-    extension = "jpg" if "image/jpeg" in image_data else "png" if "image/png" in image_data else "bin"
-    filename = f"ticket-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.{extension}"
+    # Allow submissions without an image: image_data may be None or empty
+    image_bytes = None
+    filename = None
+    if image_data and image_data.startswith("data:"):
+        image_bytes = parse_data_url(image_data)
+        extension = "jpg" if "image/jpeg" in image_data else "png" if "image/png" in image_data else "bin"
+        filename = f"ticket-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.{extension}"
 
     try:
         sheets_client = get_google_sheets_client()
-        image_url = sheets_client.upload_image(image_bytes, filename)
+        image_url = ""
+        if image_bytes is not None and filename:
+            image_url = sheets_client.upload_image(image_bytes, filename)
+
+        recorded_at = datetime.utcnow().isoformat()
+
         sheets_client.append_expense(
             {
                 "fournisseur": fournisseur or None,
@@ -195,6 +204,7 @@ async def submit_expense(
                 "devise": devise or "EUR",
                 "type": expense_type or None,
                 "description": description or None,
+                "recorded_at": recorded_at,
             },
             image_url,
         )

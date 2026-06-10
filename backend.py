@@ -66,7 +66,7 @@ class ExpenseAgent:
         except json.JSONDecodeError:
             extracted_data = {}
             
-        expected_fields = ["date", "type", "description", "fournisseur", "montant_ttc", "tva", "devise", "confidence"]
+        expected_fields = ["date", "type_document", "description", "fournisseur", "montant_ttc", "tva", "devise", "confidence"]
         validated_data = {}
         
         for field in expected_fields:
