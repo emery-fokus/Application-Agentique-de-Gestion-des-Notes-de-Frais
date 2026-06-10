@@ -1,26 +1,31 @@
 import base64
+import binascii
+import json
+import os
+from datetime import datetime
 from pathlib import Path
 from html import escape
+from dotenv import load_dotenv
 from fastapi import FastAPI, File, UploadFile, HTTPException, Request, Form
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
-# On importe ton agent de frais du fichier backend.py
 from backend import ExpenseAgent
+from sheet import GoogleSheetsClient
 
 BASE_DIR = Path(__file__).parent
-MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 Mo (spécifié dans ton sujet)
+MAX_FILE_SIZE = 5 * 1024 * 1024 
 ALLOWED_TYPES = {"image/jpeg", "image/png"}
 
 app = FastAPI(title="Gestionnaire de Notes de Frais Agentique")
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
 agent = ExpenseAgent()
+google_sheets_client = GoogleSheetsClient()
 
 
-# --- 1. FONCTION DE CONSTRUCTION DU FRAGMENT (Comme le mentor) ---
+
 def build_form_fragment(data: dict, image_data_url: str) -> str:
-    # On sécurise les chaînes de caractères contre les injections de script (XSS)
     fournisseur = escape(str(data.get("fournisseur", "") or ""))
     date = escape(str(data.get("date", "") or ""))
     montant_ttc = escape(str(data.get("montant_ttc", "") or ""))
@@ -29,13 +34,13 @@ def build_form_fragment(data: dict, image_data_url: str) -> str:
     description = escape(str(data.get("description", "") or ""))
     category = data.get("type", "")
 
-    # On prépare la logique pour cocher dynamiquement la bonne option du <select>
+
     options = ""
     for cat in ["Restaurant", "Transport", "Hébergement", "Fournitures", "Autre"]:
         selected = 'selected' if category == cat else ''
         options += f'<option value="{cat}" {selected}>{cat}</option>'
 
-    # On génère le gros formulaire HTML demandé
+
     return f"""
 <form hx-post="/api/submit" hx-target="#result-zone" class="expense-form">
     <h3>Vérification des données de la note de frais</h3>
@@ -85,13 +90,19 @@ def build_form_fragment(data: dict, image_data_url: str) -> str:
 </form>
 """
 
-
-# --- 2. GESTIONNAIRE D'EXCEPTIONS POUR HTMX (Identique au mentor) ---
 @app.exception_handler(HTTPException)
 async def htmx_exception_handler(request: Request, exc: HTTPException):
     return HTMLResponse(
-        content=f'<p class="result-error">Erreur {exc.status_code} : {exc.detail}</p>',
+        content=f'<p class="result-error">Erreur {exc.status_code} : {escape(str(exc.detail))}</p>',
         status_code=exc.status_code,
+    )
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    return HTMLResponse(
+        content=f'<p class="result-error">Erreur interne : {escape(str(exc))}</p>',
+        status_code=500,
     )
 
 
@@ -127,19 +138,53 @@ async def analyze_image(file: UploadFile = File(...)):
 
 
 
+def parse_data_url(image_data: str) -> bytes:
+    if not image_data or not image_data.startswith("data:") or "," not in image_data:
+        raise HTTPException(status_code=400, detail="Image encodée invalide.")
+
+    _, encoded = image_data.split(",", 1)
+    try:
+        return base64.b64decode(encoded)
+    except (binascii.Error, ValueError):
+        raise HTTPException(status_code=400, detail="Image encodée invalide.")
+
+
 @app.post("/api/submit", response_class=HTMLResponse)
 async def submit_expense(
     fournisseur: str = Form(...),
-    date: str = Form(...),
+    date: str = Form(None),
     montant_ttc: float = Form(...),
-    tva: float = Form(None),      
+    tva: float = Form(None),
     devise: str = Form("EUR"),
-    type: str = Form(...),
-    description: str = Form(""),   
-    image_data: str = Form(...)    
+    expense_type: str = Form(..., alias="type"),
+    description: str = Form(""),
+    image_data: str = Form(...),
 ):
+    image_bytes = parse_data_url(image_data)
+    extension = "jpg" if "image/jpeg" in image_data else "png" if "image/png" in image_data else "bin"
+    filename = f"ticket-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.{extension}"
+
+    try:
+        image_url = google_sheets_client.upload_image(image_bytes, filename)
+        google_sheets_client.append_expense(
+            {
+                "fournisseur": fournisseur or None,
+                "date": date or None,
+                "montant_ttc": montant_ttc,
+                "tva": tva if tva is not None else None,
+                "devise": devise or "EUR",
+                "type": expense_type,
+                "description": description or None,
+            },
+            image_url,
+        )
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
     return HTMLResponse(content="""
 <div class="success-message">
-    <strong>Enregistrement réussi !</strong> Les données vérifiées ont été envoyées.
+    <strong>Enregistrement réussi !</strong> La dépense a bien été enregistrée.
 </div>
 """)

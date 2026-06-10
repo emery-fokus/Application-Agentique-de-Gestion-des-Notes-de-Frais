@@ -4,5 +4,7 @@ pybase64
 fastapi
 uvicorn[standard]
 python-multipart
-fast api
+google-api-python-client
+google-auth
+google-auth-httplib2
 
