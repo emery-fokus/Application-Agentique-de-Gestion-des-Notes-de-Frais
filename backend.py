@@ -72,6 +72,9 @@ class ExpenseAgent:
         for field in expected_fields:
             # Si le champ n'existe pas ou est null, on lui donne la valeur None sans planter
             validated_data[field] = extracted_data.get(field, None)
+
+        # Pour compatibilité avec le formulaire qui attend le champ `type`
+        validated_data["type"] = validated_data.get("type") or validated_data.get("type_document")
             
         return validated_data
 

@@ -40,7 +40,7 @@ def build_form_fragment(data: dict, image_data_url: str) -> str:
     tva = escape(str(data.get("tva", "") or ""))
     devise = escape(str(data.get("devise", "EUR") or "EUR"))
     description = escape(str(data.get("description", "") or ""))
-    category = data.get("type", "")
+    category = data.get("type") or data.get("type_document", "")
 
 
     options = ""
@@ -191,7 +191,12 @@ async def submit_expense(
         sheets_client = get_google_sheets_client()
         image_url = ""
         if image_bytes is not None and filename:
-            image_url = sheets_client.upload_image(image_bytes, filename)
+            try:
+                image_url = sheets_client.upload_image(image_bytes, filename)
+            except Exception as e:
+                print(f"[upload_image error] {e}")
+                # continue without image
+                image_url = ""
 
         recorded_at = datetime.utcnow().isoformat()
 
