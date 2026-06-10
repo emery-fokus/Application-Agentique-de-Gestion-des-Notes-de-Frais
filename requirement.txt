@@ -1,6 +1,5 @@
 python-dotenv
 groq
-pybase64
 fastapi
 uvicorn[standard]
 python-multipart
@@ -8,4 +7,4 @@ google-api-python-client
 google-auth
 google-auth-httplib2
 pytest
-
+cloudinary

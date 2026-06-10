@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestionnaire de Notes de Frais Agentique</title>
+    <title>Gestionnaire de Notes de Frais</title>
     <link rel="stylesheet" href="/static/style.css">
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
 </head>
@@ -12,35 +12,33 @@
 <body>
     <div class="container">
         <header>
-            <h1>💰 Gestionnaire de Notes de Frais</h1>
+            <h1>Gestionnaire de Notes de Frais</h1>
             <p class="subtitle">Analysez vos reçus et enregistrez vos dépenses en un instant</p>
         </header>
 
         <div class="main-content">
-            <!-- Upload Section -->
-            <div>
+            <form id="upload-form" hx-post="/api/analyze" hx-target="#analysis-result"
+                hx-encoding="multipart/form-data">
                 <div class="drop-zone" id="dropZone">
                     <div class="drop-zone-icon">📸</div>
                     <div class="drop-zone-text">Déposez votre reçu ici</div>
-                    <div class="drop-zone-hint">ou cliquez pour sélectionner une image (JPEG, PNG)</div>
+                    <div class="drop-zone-hint">ou cliquez pour sélectionner (JPEG, PNG)</div>
                 </div>
-                <input type="file" id="image-input" accept="image/jpeg,image/png">
+                <input type="file" id="image-input" name="file" accept="image/jpeg,image/png" style="display: none;">
+            </form>
 
-                <div class="preview-container" id="previewContainer">
-                    <img id="previewImage" class="preview-image" alt="Aperçu">
-                    <div class="preview-info" id="previewInfo"></div>
-                </div>
+            <div class="preview-container" id="previewContainer">
+                <img id="previewImage" class="preview-image" alt="Aperçu">
+                <div class="preview-info" id="previewInfo"></div>
             </div>
 
-            <!-- Analysis Result -->
             <div id="analysis-result"></div>
 
-            <!-- Confirmation -->
             <div id="confirmation-container"></div>
         </div>
     </div>
 
-    <script src="/static/app.js"></script>
+    <script src="/static/app.js" defer></script>
 </body>
 
 </html>
