@@ -4,3 +4,5 @@ pybase64
 fastapi
 uvicorn[standard]
 python-multipart
+fast api
+
