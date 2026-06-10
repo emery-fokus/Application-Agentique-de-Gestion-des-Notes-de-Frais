@@ -31,6 +31,7 @@ class GoogleSheetsClient:
 
         self.drive_service = build('drive', 'v3', credentials=credentials)
         self.sheets_service = build('sheets', 'v4', credentials=credentials)
+        self.sheet_name = self._get_default_sheet_name()
 
     def _resolve_json_path(self, path: str) -> str:
         p = Path(path)
@@ -39,6 +40,14 @@ class GoogleSheetsClient:
         if not p.exists():
             raise FileNotFoundError(f'Fichier de compte de service introuvable : {p}')
         return str(p)
+
+    def _get_default_sheet_name(self) -> str:
+        spreadsheet = self.sheets_service.spreadsheets().get(spreadsheetId=self.sheet_id, fields='sheets.properties.title').execute()
+        sheets = spreadsheet.get('sheets', [])
+        if not sheets:
+            raise RuntimeError('Aucun onglet trouvé dans le classeur Google Sheets.')
+        title = sheets[0]['properties']['title']
+        return title.replace("'", "''")
 
     def upload_image(self, image_bytes: bytes, filename: str) -> str:
         media = MediaIoBaseUpload(io.BytesIO(image_bytes), mimetype=self._guess_mimetype(filename), resumable=False)
@@ -75,7 +84,7 @@ class GoogleSheetsClient:
         body = {'values': [row]}
         self.sheets_service.spreadsheets().values().append(
             spreadsheetId=self.sheet_id,
-            range='Sheet1!A1',
+            range=f"'{self.sheet_name}'!A1",
             valueInputOption='RAW',
             insertDataOption='INSERT_ROWS',
             body=body,

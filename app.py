@@ -21,7 +21,15 @@ app = FastAPI(title="Gestionnaire de Notes de Frais Agentique")
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
 agent = ExpenseAgent()
-google_sheets_client = GoogleSheetsClient()
+
+# Lazy loading pour le client Google Sheets
+_google_sheets_client = None
+
+def get_google_sheets_client():
+    global _google_sheets_client
+    if _google_sheets_client is None:
+        _google_sheets_client = GoogleSheetsClient()
+    return _google_sheets_client
 
 
 
@@ -151,29 +159,41 @@ def parse_data_url(image_data: str) -> bytes:
 
 @app.post("/api/submit", response_class=HTMLResponse)
 async def submit_expense(
-    fournisseur: str = Form(...),
+    fournisseur: str = Form(None),
     date: str = Form(None),
-    montant_ttc: float = Form(...),
-    tva: float = Form(None),
+    montant_ttc_raw: str = Form(None, alias="montant_ttc"),
+    tva_raw: str = Form(None),
     devise: str = Form("EUR"),
-    expense_type: str = Form(..., alias="type"),
+    expense_type: str = Form(None, alias="type"),
     description: str = Form(""),
     image_data: str = Form(...),
 ):
+    def to_float(s: str | None):
+        if s is None or s == "":
+            return None
+        try:
+            return float(s)
+        except (ValueError, TypeError):
+            raise HTTPException(status_code=400, detail=f"Valeur numérique invalide: {s}")
+
+    montant_ttc = to_float(montant_ttc_raw)
+    tva = to_float(tva_raw)
+
     image_bytes = parse_data_url(image_data)
     extension = "jpg" if "image/jpeg" in image_data else "png" if "image/png" in image_data else "bin"
     filename = f"ticket-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.{extension}"
 
     try:
-        image_url = google_sheets_client.upload_image(image_bytes, filename)
-        google_sheets_client.append_expense(
+        sheets_client = get_google_sheets_client()
+        image_url = sheets_client.upload_image(image_bytes, filename)
+        sheets_client.append_expense(
             {
                 "fournisseur": fournisseur or None,
                 "date": date or None,
                 "montant_ttc": montant_ttc,
                 "tva": tva if tva is not None else None,
                 "devise": devise or "EUR",
-                "type": expense_type,
+                "type": expense_type or None,
                 "description": description or None,
             },
             image_url,

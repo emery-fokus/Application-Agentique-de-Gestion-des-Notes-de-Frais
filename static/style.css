@@ -1,0 +1,314 @@
+/* Catppuccin Mocha Palette */
+:root {
+    --ctp-rosewater: #f5e0dc;
+    --ctp-flamingo: #f2cdcd;
+    --ctp-pink: #f5c2e7;
+    --ctp-mauve: #cba6f7;
+    --ctp-red: #f38ba8;
+    --ctp-maroon: #eba0ac;
+    --ctp-peach: #f5a97f;
+    --ctp-yellow: #f9e2af;
+    --ctp-green: #a6e3a1;
+    --ctp-teal: #94e2d5;
+    --ctp-sky: #89dceb;
+    --ctp-sapphire: #74c7ec;
+    --ctp-blue: #89b4fa;
+    --ctp-lavender: #b4befe;
+
+    --ctp-text: #cdd6f4;
+    --ctp-subtext1: #bac2de;
+    --ctp-subtext0: #a6adc8;
+    --ctp-overlay2: #9399b2;
+    --ctp-overlay1: #8087a2;
+    --ctp-overlay0: #6c7086;
+    --ctp-surface2: #585b70;
+    --ctp-surface1: #45475a;
+    --ctp-surface0: #313244;
+    --ctp-base: #1e1e2e;
+    --ctp-mantle: #181825;
+    --ctp-crust: #11111b;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: var(--ctp-base);
+    color: var(--ctp-text);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+header {
+    margin-bottom: 3rem;
+    text-align: center;
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, var(--ctp-blue), var(--ctp-lavender));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.subtitle {
+    color: var(--ctp-subtext1);
+    font-size: 1rem;
+}
+
+.main-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+/* Drop Zone Styling */
+.drop-zone {
+    border: 2px dashed var(--ctp-lavender);
+    border-radius: 12px;
+    padding: 3rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: var(--ctp-surface0);
+}
+
+.drop-zone:hover {
+    border-color: var(--ctp-blue);
+    background-color: var(--ctp-surface1);
+}
+
+.drop-zone.dragover {
+    border-color: var(--ctp-green);
+    background-color: var(--ctp-surface1);
+}
+
+.drop-zone-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.drop-zone-text {
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.drop-zone-hint {
+    color: var(--ctp-subtext1);
+    font-size: 0.9rem;
+}
+
+#image-input {
+    display: none;
+}
+
+/* Preview */
+.preview-container {
+    display: none;
+    margin-top: 2rem;
+    padding: 2rem;
+    background-color: var(--ctp-surface0);
+    border-radius: 12px;
+    border-left: 4px solid var(--ctp-green);
+}
+
+.preview-container.active {
+    display: block;
+}
+
+.preview-image {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.preview-info {
+    color: var(--ctp-subtext1);
+    font-size: 0.9rem;
+}
+
+/* Spinner */
+.spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid var(--ctp-surface2);
+    border-top-color: var(--ctp-blue);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 0.5rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: var(--ctp-subtext1);
+}
+
+/* Form Styling */
+.form-container {
+    background-color: var(--ctp-surface0);
+    border-radius: 12px;
+    padding: 2rem;
+    border-left: 4px solid var(--ctp-peach);
+}
+
+.form-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: var(--ctp-text);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--ctp-subtext1);
+}
+
+input,
+select,
+textarea {
+    padding: 0.75rem;
+    border: 1px solid var(--ctp-surface2);
+    border-radius: 6px;
+    background-color: var(--ctp-base);
+    color: var(--ctp-text);
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--ctp-blue);
+    background-color: var(--ctp-surface1);
+    box-shadow: 0 0 0 2px var(--ctp-surface2);
+}
+
+textarea {
+    grid-column: 1 / -1;
+    min-height: 100px;
+    resize: vertical;
+}
+
+.button-group {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+button {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--ctp-blue), var(--ctp-sapphire));
+    color: var(--ctp-crust);
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(137, 180, 250, 0.4);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-secondary {
+    background-color: var(--ctp-surface1);
+    color: var(--ctp-text);
+    border: 1px solid var(--ctp-surface2);
+}
+
+.btn-secondary:hover {
+    background-color: var(--ctp-surface2);
+}
+
+/* Confirmation Container */
+#confirmation-container {
+    margin-top: 2rem;
+}
+
+.success-message {
+    background-color: var(--ctp-surface0);
+    border-left: 4px solid var(--ctp-green);
+    padding: 1.5rem;
+    border-radius: 8px;
+    color: var(--ctp-green);
+}
+
+.result-error {
+    background-color: var(--ctp-surface0);
+    border-left: 4px solid var(--ctp-red);
+    padding: 1.5rem;
+    border-radius: 8px;
+    color: var(--ctp-red);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    .drop-zone {
+        padding: 2rem;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* HTMX Loading States */
+.htmx-swapping .spinner {
+    display: inline-block;
+}
